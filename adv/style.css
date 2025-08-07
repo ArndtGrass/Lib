@@ -1,0 +1,13 @@
+// TODO: Implement style.css
+
+.code-box button {
+  font-size: 1.2em;
+  background: #eee;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.code-box button.selected {
+  background-color: #0066cc;
+  color: white;
+}
