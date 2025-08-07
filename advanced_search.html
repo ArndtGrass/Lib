@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Erweiterte Suche</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .group { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    .badge { display: inline-block; background-color: #ddd; border-radius: 4px; padding: 2px 6px; margin: 2px; font-size: 0.9em; }
+    .group-controls { margin-bottom: 10px; }
+    .results { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="nav-switch"><a href="index.html">⭠ Zurück zur Hauptseite</a></div>
+  <h1>Erweiterte Suche</h1>
+
+  <div id="groupContainer"></div>
+
+  <button onclick="addGroup()">+ Neue Filtergruppe</button>
+  <button onclick="applyAdvancedFilter()">Filter anwenden</button>
+  <button onclick="resetAdvancedFilter()">Zurücksetzen</button>
+
+  
+<button onclick="toggleFilterPanel()">🔽 Filter ein-/ausblenden</button>
+
+<div id="activeFilterName" style="margin: 0.5em 0; font-style: italic; color: #444;"></div>
+<div id="filterPanel" style="margin-top: 1em; display: block;">
+  <div style="margin-bottom: 1em;">
+    <select id="filterSelect" onchange="loadFilter(this.value)">
+      <option disabled selected>Gespeicherten Filter wählen</option>
+    </select>
+    <button onclick="saveCurrentFilter()">💾 Speichern</button>
+    <button onclick="loadFilter(filterSelect.value)">📂 Laden</button>
+    <button onclick="renameFilter(filterSelect.value)">✏️ Umbenennen</button>
+    <button onclick="deleteFilter(filterSelect.value)">🗑️ Löschen</button>
+    <button onclick="exportCurrentFilter()">📤 Export</button>
+    <button onclick="document.getElementById('importFile').click()">📥 Import</button>
+    <input type="file" id="importFile" style="display:none;" accept=".json" onchange="importFilterFromFile(event)">
+  </div>
+</div>
+
+<div class="results" id="results"></div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="advanced_search.js"></script>
+</body>
+</html>

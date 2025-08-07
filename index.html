@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Story-Übersicht</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .filters, .pagination, .results { margin-top: 20px; }
+    .code-block { margin-bottom: 15px; }
+    .code-button { padding: 5px 10px; margin: 2px; border: 1px solid #ccc; cursor: pointer; }
+    .maybe { background-color: #eee; }
+    .yes { background-color: #cfc; }
+    .no { background-color: #fcc; }
+  
+.badge {
+  display: inline-block;
+  background-color: #ddd;
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: 2px 2px 2px 0;
+  font-size: 0.85em;
+}
+
+</style>
+</head>
+<body>
+  <div class="nav-switch">
+    <a href="search.html">Suche</a> <a href="advanced_search.html">Erw. Suche</a>  <a href="adv\adv.html">Suche++</a>
+  </div>
+
+  <h1>Story-Übersicht</h1>
+  <input type="text" id="searchInput" placeholder="Suche nach Titel, Autor, Bewertung...">
+
+  <div class="controls">
+    <div>
+      Einträge pro Seite:
+      <select id="entriesPerPage">
+        <option value="25">25</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+    </div>
+    <div>
+      Sortieren nach:
+      <select id="sortField">
+        <option value="title">Titel</option>
+        <option value="author">Autor</option>
+        <option value="rating_score">Bewertung</option>
+        <option value="rating_votes">Stimmen</option>
+        <option value="added_on_date">Datum</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="pagination" id="resultsPagination">
+    <button id="prev10">&#171; 10</button>
+    <button id="prev5">&#8249; 5</button>
+    <button id="prev1">&#8249;</button>
+    <span id="pageInfo">Seite 1</span>
+    <button id="next1">&#8250;</button>
+    <button id="next5">5 &#8250;</button>
+    <button id="next10">10 &#187;</button>
+  </div>
+
+  <table id="resultsTable" class="data-table">
+    <thead>
+      <tr>
+        <th>Titel</th>
+        <th>Autor</th>
+        <th>Bewertung</th>
+        <th>Stimmen</th>
+        <th>Datum</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="pagination" id="resultsPaginationBottom">
+    <button id="prev10b">&#171; 10</button>
+    <button id="prev5b">&#8249; 5</button>
+    <button id="prev1b">&#8249;</button>
+    <span id="pageInfoBottom">Seite 1</span>
+    <button id="next1b">&#8250;</button>
+    <button id="next5b">5 &#8250;</button>
+    <button id="next10b">10 &#187;</button>
+  </div>
+
+  <div class="nav-switch">
+    <a href="search.html">Suche</a> <a href="advanced_search.html">Erw. Suche</a>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

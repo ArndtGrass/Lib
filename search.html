@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Story-Suche</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .filters, .pagination, .results { margin-top: 20px; }
+    .code-block { margin-bottom: 15px; }
+    .code-button { padding: 5px 10px; margin: 2px; border: 1px solid #ccc; cursor: pointer; }
+    .maybe { background-color: #eee; }
+    .yes { background-color: #cfc; }
+    .no { background-color: #fcc; }
+  </style>
+
+<style>
+.detail-cell {
+  background-color: #f6f6f6;
+  padding: 10px;
+  font-size: 0.95em;
+  line-height: 1.4;
+  white-space: normal;
+}
+.detail-cell a {
+  font-weight: bold;
+  color: #003366;
+  text-decoration: none;
+}
+.detail-cell a:hover {
+  text-decoration: underline;
+}
+.badge {
+  display: inline-block;
+  background-color: #ddd;
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin: 2px 2px 2px 0;
+  font-size: 0.85em;
+}
+</style>
+
+</head>
+<body>
+  <div class="nav-switch"><a href="index.html">⭠ Zurück zur Hauptseite</a> <a href="advanced_search.html">Erw. Suche</a></div>
+  <h1>Story-Suche</h1>
+  <div>
+    <label>Titel: <input type="text" id="titleSearch"></label>
+    <label>Autor: <input type="text" id="authorSearch"></label>
+  </div>
+
+  <div class="filters" id="filters"><div class="code-block"><strong>Activity</strong><br><button class="code-button maybe" data-code="bestiality" id="code_bestiality">bestiality</button><button class="code-button maybe" data-code="cbt" id="code_cbt">cbt</button><button class="code-button maybe" data-code="enema" id="code_enema">enema</button><button class="code-button maybe" data-code="exhibition" id="code_exhibition">exhibition</button><button class="code-button maybe" data-code="fisting" id="code_fisting">fisting</button><button class="code-button maybe" data-code="incest" id="code_incest">incest</button><button class="code-button maybe" data-code="interracial" id="code_interracial">interracial</button><button class="code-button maybe" data-code="lactation" id="code_lactation">lactation</button><button class="code-button maybe" data-code="modification" id="code_modification">modification</button><button class="code-button maybe" data-code="pregnant" id="code_pregnant">pregnant</button><button class="code-button maybe" data-code="scatology" id="code_scatology">scatology</button><button class="code-button maybe" data-code="size" id="code_size">size</button><button class="code-button maybe" data-code="snuff" id="code_snuff">snuff</button><button class="code-button maybe" data-code="spanking" id="code_spanking">spanking</button><button class="code-button maybe" data-code="Swallowing" id="code_swallowing">Swallowing</button><button class="code-button maybe" data-code="teen" id="code_teen">teen</button><button class="code-button maybe" data-code="Tit Torture" id="code_tit_torture">Tit Torture</button><button class="code-button maybe" data-code="toys" id="code_toys">toys</button><button class="code-button maybe" data-code="transgender" id="code_transgender">transgender</button><button class="code-button maybe" data-code="transvestite" id="code_transvestite">transvestite</button><button class="code-button maybe" data-code="voyeurism" id="code_voyeurism">voyeurism</button><button class="code-button maybe" data-code="WaterSport" id="code_watersport">WaterSport</button><button class="code-button maybe" data-code="Young" id="code_young">Young</button></div>\n<div class="code-block"><strong>Consent</strong><br><button class="code-button maybe" data-code="blackmail" id="code_blackmail">blackmail</button><button class="code-button maybe" data-code="consensual" id="code_consensual">consensual</button><button class="code-button maybe" data-code="Forced" id="code_forced">Forced</button><button class="code-button maybe" data-code="humiliation" id="code_humiliation">humiliation</button><button class="code-button maybe" data-code="mc" id="code_mc">mc</button><button class="code-button maybe" data-code="nc" id="code_nc">nc</button><button class="code-button maybe" data-code="reluctant" id="code_reluctant">reluctant</button><button class="code-button maybe" data-code="romantic" id="code_romantic">romantic</button><button class="code-button maybe" data-code="torture" id="code_torture">torture</button></div>\n<div class="code-block"><strong>Content</strong><br><button class="code-button maybe" data-code="Extreme" id="code_extreme">Extreme</button><button class="code-button maybe" data-code="Hardcore" id="code_hardcore">Hardcore</button><button class="code-button maybe" data-code="Heavy" id="code_heavy">Heavy</button><button class="code-button maybe" data-code="Light" id="code_light">Light</button><button class="code-button maybe" data-code="no codes by author" id="code_no_codes_by_author">no codes by author</button><button class="code-button maybe" data-code="Rated R" id="code_rated_r">Rated R</button><button class="code-button maybe" data-code="Rated XXX" id="code_rated_xxx">Rated XXX</button><button class="code-button maybe" data-code="Serious" id="code_serious">Serious</button><button class="code-button maybe" data-code="violent" id="code_violent">violent</button></div>\n<div class="code-block"><strong>Fetish</strong><br><button class="code-button maybe" data-code="B/D" id="code_b_d">B/D</button><button class="code-button maybe" data-code="BDSM" id="code_bdsm">BDSM</button><button class="code-button maybe" data-code="bondage" id="code_bondage">bondage</button><button class="code-button maybe" data-code="chastity belt" id="code_chastity_belt">chastity belt</button><button class="code-button maybe" data-code="D/s" id="code_d_s">D/s</button><button class="code-button maybe" data-code="feet" id="code_feet">feet</button><button class="code-button maybe" data-code="hair" id="code_hair">hair</button><button class="code-button maybe" data-code="latex" id="code_latex">latex</button><button class="code-button maybe" data-code="lingerie" id="code_lingerie">lingerie</button><button class="code-button maybe" data-code="Rape" id="code_rape">Rape</button><button class="code-button maybe" data-code="S/M" id="code_s_m">S/M</button><button class="code-button maybe" data-code="slavery" id="code_slavery">slavery</button></div>\n<div class="code-block"><strong>Gender</strong><br><button class="code-button maybe" data-code="F/f" id="code_f_f">F/f</button><button class="code-button maybe" data-code="F/f+" id="code_f_f+">F/f+</button><button class="code-button maybe" data-code="F/m" id="code_f_m">F/m</button><button class="code-button maybe" data-code="F/m+" id="code_f_m+">F/m+</button><button class="code-button maybe" data-code="F/mf" id="code_f_mf">F/mf</button><button class="code-button maybe" data-code="F+/f" id="code_f+_f">F+/f</button><button class="code-button maybe" data-code="F+/f+" id="code_f+_f+">F+/f+</button><button class="code-button maybe" data-code="F+/fm" id="code_f+_fm">F+/fm</button><button class="code-button maybe" data-code="F+/m" id="code_f+_m">F+/m</button><button class="code-button maybe" data-code="F+/m+" id="code_f+_m+">F+/m+</button><button class="code-button maybe" data-code="f-self" id="code_f-self">f-self</button><button class="code-button maybe" data-code="M/f" id="code_m_f">M/f</button><button class="code-button maybe" data-code="M/f+" id="code_m_f+">M/f+</button><button class="code-button maybe" data-code="M/m" id="code_m_m">M/m</button><button class="code-button maybe" data-code="M/m+" id="code_m_m+">M/m+</button><button class="code-button maybe" data-code="M/mf" id="code_m_mf">M/mf</button><button class="code-button maybe" data-code="M+/f" id="code_m+_f">M+/f</button><button class="code-button maybe" data-code="M+/f+" id="code_m+_f+">M+/f+</button><button class="code-button maybe" data-code="M+/m" id="code_m+_m">M+/m</button><button class="code-button maybe" data-code="M+/m+" id="code_m+_m+">M+/m+</button><button class="code-button maybe" data-code="MF/f" id="code_mf_f">MF/f</button><button class="code-button maybe" data-code="MF/m" id="code_mf_m">MF/m</button><button class="code-button maybe" data-code="MF/mf" id="code_mf_mf">MF/mf</button><button class="code-button maybe" data-code="m-self" id="code_m-self">m-self</button></div>\n<div class="code-block"><strong>Theme</strong><br><button class="code-button maybe" data-code="bible" id="code_bible">bible</button><button class="code-button maybe" data-code="college" id="code_college">college</button><button class="code-button maybe" data-code="documentary" id="code_documentary">documentary</button><button class="code-button maybe" data-code="Fantasy" id="code_fantasy">Fantasy</button><button class="code-button maybe" data-code="gothic" id="code_gothic">gothic</button><button class="code-button maybe" data-code="HighSchool" id="code_highschool">HighSchool</button><button class="code-button maybe" data-code="historical" id="code_historical">historical</button><button class="code-button maybe" data-code="job" id="code_job">job</button><button class="code-button maybe" data-code="On Line" id="code_on_line">On Line</button><button class="code-button maybe" data-code="real" id="code_real">real</button><button class="code-button maybe" data-code="ScFi" id="code_scfi">ScFi</button><button class="code-button maybe" data-code="slow" id="code_slow">slow</button><button class="code-button maybe" data-code="spoof" id="code_spoof">spoof</button></div>
+    <div style="margin-top:10px;">
+      <button onclick="updateFilters()">Filter anwenden</button>
+      <button onclick="resetFilters()">Zurücksetzen</button>
+    </div></div>
+
+  <div class="pagination" id="pagination"></div>
+
+  <div class="results" id="results"></div>
+
+  <script src="search.js"></script>
+</body>
+</html>

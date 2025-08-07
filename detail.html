@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Detailansicht</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #fff;
+            color: #000;
+            padding: 2em;
+        }
+        .controls {
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #eee;
+            width: 100%;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            z-index: 10;
+			font-size: 14px !important;
+        }
+        iframe {
+            width: 100%;
+            height: 90vh;
+            border: none;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <a href="index.html">🏠 Start</a> |
+        <a href="search.html">🔍 Suche</a> |
+        <a href="advanced_search.html">🛠️ Erweiterte Suche</a> |
+        <button onclick="toggleNightMode()">🌙 Tag/Nacht</button>
+        <button onclick="adjustFontSize(1)">A+</button>
+        <button onclick="adjustFontSize(-1)">A-</button>
+        <button onclick="resetSettings()">🔁 Reset</button>
+        <button onclick="toggleSanitize()">🧼 PRE</button>
+    </div>
+    <iframe id="storyFrame"></iframe>
+
+    <script>
+        const frame = document.getElementById('storyFrame');
+        let useSanitize = JSON.parse(localStorage.getItem('useSanitize') || "false");
+
+        function loadStory() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const file = urlParams.get('file');
+            if (!file) return;
+
+            fetch("stories/" + file)
+                .then(res => res.text())
+                .then(html => {
+                    const doc = new DOMParser().parseFromString(html, "text/html");
+                    const body = doc.body;
+
+                    if (useSanitize) {
+                        sanitizeBody(body);
+                    }
+
+                    frame.srcdoc = `
+                        <html>
+                        <head>
+                            <style>
+                                body { font-family: sans-serif; background: ${getComputedStyle(document.body).backgroundColor}; color: ${getComputedStyle(document.body).color}; padding: 2em; font-size: ${getComputedStyle(document.body).fontSize}; white-space: normal; }
+                                pre { white-space: pre-wrap; }
+                            </style>
+                        </head>
+                        <body>${body.innerHTML}</body>
+                        </html>
+                    `;
+                });
+        }
+
+        function sanitizeBody(body) {
+            let text = body.innerText;
+
+            text = text
+                .split(/\n\s*\n/)  // absätze erkennen
+                .map(para => para.replace(/\n+/g, ' '))  // innerhalb absätzen:  -> leerzeichen
+                .join('\n\n'); // absätze bewahren
+
+            body.innerHTML = '<pre>' + text + '</pre>';
+        }
+
+        function toggleNightMode() {
+            document.body.classList.toggle('night');
+            const night = document.body.classList.contains('night');
+            document.body.style.backgroundColor = night ? '#111' : '#fff';
+            document.body.style.color = night ? '#eee' : '#000';
+            localStorage.setItem('nightMode', JSON.stringify(night));
+            loadStory(); // reload for iframe theme
+        }
+
+        function adjustFontSize(factor) {
+            let current = parseFloat(getComputedStyle(document.body).fontSize);
+            document.body.style.fontSize = (current + factor) + "px";
+            localStorage.setItem('fontSize', document.body.style.fontSize);
+            loadStory();
+        }
+
+        function resetSettings() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        function toggleSanitize() {
+            useSanitize = !useSanitize;
+            localStorage.setItem('useSanitize', JSON.stringify(useSanitize));
+            loadStory();
+        }
+
+        window.onload = function () {
+            if (JSON.parse(localStorage.getItem('nightMode') || "false")) {
+                document.body.classList.add('night');
+                document.body.style.backgroundColor = '#111';
+                document.body.style.color = '#eee';
+            }
+            let fontSize = localStorage.getItem('fontSize');
+            if (fontSize) document.body.style.fontSize = fontSize;
+
+            loadStory();
+        };
+    </script>
+</body>
+</html>
