@@ -659,6 +659,15 @@
         let storiesPerPage = 50;
         let totalPages = 1;
 
+        function changePerPage(value) {
+            storiesPerPage = value === 'all'
+                ? (filteredStories.length || allStories.length)
+                : parseInt(value, 10);
+            currentPage = 1;
+            updateStoryTable();
+            renderPagination();
+        }
+
         // Daten laden beim Start
         async function loadData() {
             try {
@@ -934,8 +943,10 @@
                 return result;
             });
 
+            currentPage = 1;
+            renderPagination();
             updateStoryTable();
-            
+
             // Auto-Save (nur wenn nicht in Initialisierung und Filter existieren)
             if (!isInitializing && filterSets.length > 0) {
                 autoSaveFilters();
@@ -968,8 +979,6 @@
         function updateStoryTable() {
             const tbody = document.getElementById('story-table-body');
             const count = document.getElementById('results-count');
-            
-            count.textContent = `${filteredStories.length} von ${allStories.length} Stories`;
 
             // Sortieren
             const sorted = [...filteredStories].sort((a, b) => {
@@ -990,7 +999,16 @@
                 return 0;
             });
 
-            tbody.innerHTML = sorted.map(story => {
+            const start = (currentPage - 1) * storiesPerPage;
+            const end = start + storiesPerPage;
+            const pageStories = sorted.slice(start, end);
+            const total = filteredStories.length;
+            const rangeStart = total === 0 ? 0 : start + 1;
+            const rangeEnd = Math.min(end, total);
+
+            count.textContent = `${rangeStart}-${rangeEnd} von ${total} Stories`;
+
+            tbody.innerHTML = pageStories.map(story => {
                 const isExpanded = expandedRows.has(story.index);
                 
                 let mainRow = `
@@ -1041,6 +1059,46 @@
 
                 return mainRow;
             }).join('');
+        }
+
+        function renderPagination() {
+            totalPages = Math.ceil(filteredStories.length / storiesPerPage) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const top = document.getElementById('pagination-top');
+            const bottom = document.getElementById('pagination-bottom');
+            [top, bottom].forEach(container => {
+                container.innerHTML = '';
+
+                const prevBtn = document.createElement('button');
+                prevBtn.textContent = '«';
+                prevBtn.className = 'pagination-btn';
+                prevBtn.disabled = currentPage === 1;
+                prevBtn.onclick = () => goToPage(currentPage - 1);
+                container.appendChild(prevBtn);
+
+                for (let i = 1; i <= totalPages; i++) {
+                    const btn = document.createElement('button');
+                    btn.textContent = i;
+                    btn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+                    btn.onclick = () => goToPage(i);
+                    container.appendChild(btn);
+                }
+
+                const nextBtn = document.createElement('button');
+                nextBtn.textContent = '»';
+                nextBtn.className = 'pagination-btn';
+                nextBtn.disabled = currentPage === totalPages;
+                nextBtn.onclick = () => goToPage(currentPage + 1);
+                container.appendChild(nextBtn);
+            });
+        }
+
+        function goToPage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            updateStoryTable();
+            renderPagination();
         }
 
         // Story-Details ein-/ausklappen (mit Event-Stop)
