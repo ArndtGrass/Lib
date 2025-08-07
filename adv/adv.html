@@ -590,8 +590,8 @@
                         ➕ Filter-Set hinzufügen
                     </button>
                     <div class="save-load-controls">
-                        <button class="save-btn" onclick="saveFilters()">💾 Speichern</button>
-                        <button class="load-btn" onclick="loadFilters()">📂 Laden</button>
+                        <button class="save-btn" onclick="saveFilters(event)">💾 Speichern</button>
+                        <button class="load-btn" onclick="loadFilters(event)">📂 Laden</button>
                         <button class="clear-btn" onclick="clearAllFilters()">🗑️ Alle löschen</button>
                     </div>
                 </div>
@@ -621,13 +621,13 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th class="sortable" onclick="sortTable('index')">Index</th>
-                                    <th class="sortable" onclick="sortTable('title')">Titel</th>
-                                    <th class="sortable" onclick="sortTable('author')">Autor</th>
-                                    <th class="sortable" onclick="sortTable('rating_score')">Rating</th>
-                                    <th class="sortable" onclick="sortTable('rating_votes')">Votes</th>
-                                    <th class="sortable" onclick="sortTable('size_kb')">Size (KB)</th>
-                                    <th class="sortable" onclick="sortTable('added_on')">Date Added</th>
+                                    <th class="sortable" onclick="sortTable('index', event)">Index</th>
+                                    <th class="sortable" onclick="sortTable('title', event)">Titel</th>
+                                    <th class="sortable" onclick="sortTable('author', event)">Autor</th>
+                                    <th class="sortable" onclick="sortTable('rating_score', event)">Rating</th>
+                                    <th class="sortable" onclick="sortTable('rating_votes', event)">Votes</th>
+                                    <th class="sortable" onclick="sortTable('size_kb', event)">Size (KB)</th>
+                                    <th class="sortable" onclick="sortTable('added_on', event)">Date Added</th>
                                 </tr>
                             </thead>
                             <tbody id="story-table-body">
@@ -1056,7 +1056,7 @@
         }
 
         // Tabelle sortieren
-        function sortTable(column) {
+        function sortTable(column, evt) {
             if (currentSort.column === column) {
                 currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
             } else {
@@ -1069,14 +1069,14 @@
                 th.classList.remove('sort-asc', 'sort-desc');
             });
             
-            const clickedHeader = event.target;
+            const clickedHeader = evt.target;
             clickedHeader.classList.add(`sort-${currentSort.direction}`);
 
             updateStoryTable();
         }
 
         // Filter speichern (manuell)
-        function saveFilters() {
+        function saveFilters(evt) {
             try {
                 const filterData = {
                     filterSets: filterSets.map(fs => ({
@@ -1095,7 +1095,7 @@
                 }
                 
                 // Erfolgs-Feedback
-                const btn = event.target;
+                const btn = evt.target;
                 const originalText = btn.textContent;
                 btn.textContent = '✅ Gespeichert!';
                 btn.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
@@ -1111,7 +1111,7 @@
         }
 
         // Filter laden (manuell)
-        function loadFilters() {
+        function loadFilters(evt) {
             try {
                 if (typeof(Storage) === "undefined") {
                     alert('LocalStorage nicht verfügbar!');
@@ -1155,7 +1155,7 @@
                 }
                 
                 // Erfolgs-Feedback
-                const btn = event.target;
+                const btn = evt.target;
                 const originalText = btn.textContent;
                 btn.textContent = '✅ Geladen!';
                 btn.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
