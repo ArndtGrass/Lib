@@ -1070,32 +1070,47 @@
             [top, bottom].forEach(container => {
                 container.innerHTML = '';
 
-                const prevBtn = document.createElement('button');
-                prevBtn.textContent = '«';
-                prevBtn.className = 'pagination-btn';
-                prevBtn.disabled = currentPage === 1;
-                prevBtn.onclick = () => goToPage(currentPage - 1);
-                container.appendChild(prevBtn);
-
-                for (let i = 1; i <= totalPages; i++) {
+                const createBtn = (label, target) => {
                     const btn = document.createElement('button');
-                    btn.textContent = i;
-                    btn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
-                    btn.onclick = () => goToPage(i);
+                    btn.textContent = label;
+                    btn.className = 'pagination-btn';
+                    btn.disabled = target < 1 || target > totalPages || target === currentPage;
+                    btn.addEventListener('click', () => goToPage(target));
                     container.appendChild(btn);
-                }
+                };
 
-                const nextBtn = document.createElement('button');
-                nextBtn.textContent = '»';
-                nextBtn.className = 'pagination-btn';
-                nextBtn.disabled = currentPage === totalPages;
-                nextBtn.onclick = () => goToPage(currentPage + 1);
-                container.appendChild(nextBtn);
+                createBtn('Zurück', currentPage - 1);
+                createBtn('Erste', 1);
+                createBtn('-10', currentPage - 10);
+                createBtn('-1', currentPage - 1);
+
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'page-input';
+                input.value = currentPage;
+                input.min = 1;
+                input.max = totalPages;
+                input.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') {
+                        const page = parseInt(input.value, 10);
+                        goToPage(page);
+                    }
+                });
+                input.addEventListener('change', () => {
+                    const page = parseInt(input.value, 10);
+                    goToPage(page);
+                });
+                container.appendChild(input);
+
+                createBtn('+1', currentPage + 1);
+                createBtn('+10', currentPage + 10);
+                createBtn('Letzte', totalPages);
+                createBtn('Weiter', currentPage + 1);
             });
         }
 
         function goToPage(page) {
-            if (page < 1 || page > totalPages) return;
+            if (isNaN(page) || page < 1 || page > totalPages) return;
             currentPage = page;
             updateStoryTable();
             renderPagination();
