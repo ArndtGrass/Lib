@@ -627,7 +627,7 @@
                                     <th class="sortable" onclick="sortTable('rating_score', event)">Rating</th>
                                     <th class="sortable" onclick="sortTable('rating_votes', event)">Votes</th>
                                     <th class="sortable" onclick="sortTable('size_kb', event)">Size (KB)</th>
-                                    <th class="sortable" onclick="sortTable('added_on', event)">Date Added</th>
+                                    <th class="sortable" onclick="sortTable('date_iso', event)">Date Added</th>
                                 </tr>
                             </thead>
                             <tbody id="story-table-body">
@@ -653,7 +653,27 @@
         let currentSort = { column: 'index', direction: 'asc' };
         let expandedRows = new Set();
         let isInitializing = false;
-        
+
+        // Helper functions for date handling
+        function parseDate(value) {
+            if (!value) return new Date(0);
+            const normalized = value.replace(/\./g, '-');
+            const parts = normalized.split('-');
+            if (parts[0].length === 4) {
+                return new Date(`${parts[0]}-${parts[1]}-${parts[2]}`);
+            }
+            return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+        }
+
+        function formatDate(value) {
+            if (!value) return '';
+            const parts = value.includes('.') ? value.split('.') : value.split('-');
+            if (parts[0].length === 4) {
+                return `${parts[0]}.${parts[1]}.${parts[2]}`;
+            }
+            return `${parts[2]}.${parts[1]}.${parts[0]}`;
+        }
+
         // Pagination Variablen
         let currentPage = 1;
         let storiesPerPage = 50;
@@ -986,9 +1006,9 @@
                 let bVal = b[currentSort.column];
 
                 // Spezielle Behandlung für verschiedene Datentypen
-                if (currentSort.column === 'added_on') {
-                    aVal = new Date(aVal.split('.').reverse().join('-'));
-                    bVal = new Date(bVal.split('.').reverse().join('-'));
+                if (currentSort.column === 'date_iso') {
+                    aVal = parseDate(aVal);
+                    bVal = parseDate(bVal);
                 } else if (typeof aVal === 'string') {
                     aVal = aVal.toLowerCase();
                     bVal = bVal.toLowerCase();
@@ -1019,7 +1039,7 @@
                         <td><span class="story-rating">${story.rating_score || 'N/A'}</span></td>
                         <td class="story-votes">${story.rating_votes || 0}</td>
                         <td class="story-size">${story.size_kb || 0}</td>
-                        <td class="story-date">${story.added_on}</td>
+                        <td class="story-date">${formatDate(story.date_iso)}</td>
                     </tr>
                 `;
 
