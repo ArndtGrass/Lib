@@ -951,7 +951,7 @@
                     }
                 }
                 const matchesSearch = !textSearch || [story.title, story.author, story.synopsis]
-                    .some(field => field && field.toLowerCase().includes(textSearch));
+                    .some(field => typeof field === 'string' && field.toLowerCase().includes(textSearch));
 
                 return result && matchesSearch;
             });
