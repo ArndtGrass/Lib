@@ -98,6 +98,13 @@
             background: linear-gradient(45deg, #dc3545, #c82333);
         }
 
+        .text-search {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 20px;
+            min-width: 200px;
+        }
+
         .add-filter-btn {
             background: linear-gradient(45deg, #28a745, #20c997);
             color: white;
@@ -594,6 +601,7 @@
                         <button class="load-btn" onclick="loadFilters(event)">📂 Laden</button>
                         <button class="clear-btn" onclick="clearAllFilters()">🗑️ Alle löschen</button>
                     </div>
+                    <input type="text" id="text-search" class="text-search" placeholder="Textsuche" oninput="updateTextSearch(this.value)">
                 </div>
                 <div id="filter-container"></div>
             </div>
@@ -650,6 +658,7 @@
         let filteredStories = [];
         let filterSets = [];
         let filterSetCounter = 0;
+        let textSearch = '';
         let currentSort = { column: 'index', direction: 'asc' };
         let expandedRows = new Set();
         let isInitializing = false;
@@ -666,6 +675,11 @@
             currentPage = 1;
             updateStoryTable();
             renderPagination();
+        }
+
+        function updateTextSearch(value) {
+            textSearch = value.toLowerCase();
+            applyFilters();
         }
 
         // Daten laden beim Start
@@ -939,8 +953,10 @@
                         result = result || filterResults[i];
                     }
                 }
+                const matchesSearch = !textSearch || [story.title, story.author, story.synopsis]
+                    .some(field => field && field.toLowerCase().includes(textSearch));
 
-                return result;
+                return result && matchesSearch;
             });
 
             currentPage = 1;
