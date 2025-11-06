@@ -20,13 +20,18 @@
             padding: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.3);
             z-index: 10;
-			font-size: 14px !important;
+            font-size: 14px !important;
         }
         iframe {
             width: 100%;
             height: 90vh;
             border: none;
             margin-top: 60px;
+        }
+        .controls label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25em;
         }
     </style>
 </head>
@@ -40,17 +45,56 @@
         <button onclick="adjustFontSize(-1)">A-</button>
         <button onclick="resetSettings()">🔁 Reset</button>
         <button onclick="toggleSanitize()">🧼 PRE</button>
+        |
+        <label><input type="checkbox" id="savePositionCheckbox"> 📌 Position merken</label>
     </div>
     <iframe id="storyFrame"></iframe>
 
     <script>
         const frame = document.getElementById('storyFrame');
         let useSanitize = JSON.parse(localStorage.getItem('useSanitize') || "false");
+        const savePositionCheckbox = document.getElementById('savePositionCheckbox');
+        let saveFramePosition = false;
+        try {
+            saveFramePosition = Boolean(JSON.parse(localStorage.getItem('saveFramePosition') || "false"));
+        } catch (e) {
+            saveFramePosition = false;
+        }
+        let currentFile = null;
+        let frameScrollTimeout = null;
+
+        if (savePositionCheckbox) {
+            savePositionCheckbox.checked = saveFramePosition;
+            savePositionCheckbox.addEventListener('change', (event) => {
+                saveFramePosition = event.target.checked;
+                localStorage.setItem('saveFramePosition', JSON.stringify(saveFramePosition));
+                if (!saveFramePosition && frameScrollTimeout) {
+                    clearTimeout(frameScrollTimeout);
+                    frameScrollTimeout = null;
+                }
+                if (saveFramePosition) {
+                    restoreFramePosition();
+                }
+            });
+        }
+
+        frame.addEventListener('load', () => {
+            frameScrollTimeout = null;
+            restoreFramePosition();
+            if (frame.contentWindow) {
+                frame.contentWindow.addEventListener('scroll', handleFrameScroll);
+            }
+        });
 
         function loadStory() {
             const urlParams = new URLSearchParams(window.location.search);
             const file = urlParams.get('file');
             if (!file) return;
+
+            if (currentFile) {
+                saveCurrentFramePosition();
+            }
+            currentFile = file;
 
             fetch("../stories/" + file)
                 .then(res => res.text())
@@ -114,6 +158,90 @@
             loadStory();
         }
 
+        const STORAGE_KEY_POSITIONS = 'savedFramePositions';
+        const MAX_SAVED_POSITIONS = 5;
+
+        function getSavedFramePositions() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY_POSITIONS);
+                if (!raw) return [];
+                const parsed = JSON.parse(raw);
+                if (!Array.isArray(parsed)) return [];
+                return parsed
+                    .filter(entry => entry && typeof entry.file === 'string')
+                    .map(entry => ({
+                        file: entry.file,
+                        position: Number(entry.position) || 0,
+                        lastUsed: typeof entry.lastUsed === 'number' ? entry.lastUsed : 0
+                    }));
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function setSavedFramePositions(entries) {
+            localStorage.setItem(STORAGE_KEY_POSITIONS, JSON.stringify(entries));
+        }
+
+        function getPositionForFile(fileName) {
+            const entries = getSavedFramePositions();
+            const match = entries.find(entry => entry.file === fileName);
+            if (!match) return null;
+            return Number.isFinite(match.position) && match.position > 0 ? match.position : null;
+        }
+
+        function getCurrentFrameScroll() {
+            if (!frame.contentWindow) return 0;
+            const doc = frame.contentWindow.document;
+            if (!doc) return 0;
+            return frame.contentWindow.pageYOffset ||
+                doc.documentElement.scrollTop ||
+                doc.body.scrollTop ||
+                0;
+        }
+
+        function saveCurrentFramePosition() {
+            if (!saveFramePosition || !currentFile) return;
+            const position = getCurrentFrameScroll();
+            if (!(position > 0)) return;
+            const timestamp = Date.now();
+            const entries = getSavedFramePositions()
+                .filter(entry => entry.file !== currentFile)
+                .concat({ file: currentFile, position, lastUsed: timestamp })
+                .sort((a, b) => b.lastUsed - a.lastUsed)
+                .slice(0, MAX_SAVED_POSITIONS);
+            setSavedFramePositions(entries);
+        }
+
+        function restoreFramePosition() {
+            if (!saveFramePosition || !currentFile) return;
+            const savedPosition = getPositionForFile(currentFile);
+            if (!(typeof savedPosition === 'number' && savedPosition > 0)) return;
+            const applyScroll = () => {
+                if (!frame.contentWindow) return;
+                frame.contentWindow.scrollTo(0, savedPosition);
+            };
+            if (frame.contentWindow && typeof frame.contentWindow.requestAnimationFrame === 'function') {
+                frame.contentWindow.requestAnimationFrame(applyScroll);
+            } else {
+                setTimeout(applyScroll, 0);
+            }
+        }
+
+        function handleFrameScroll() {
+            if (!saveFramePosition) return;
+            if (frameScrollTimeout) {
+                clearTimeout(frameScrollTimeout);
+            }
+            frameScrollTimeout = setTimeout(() => {
+                saveCurrentFramePosition();
+            }, 200);
+        }
+
+        window.addEventListener('beforeunload', () => {
+            saveCurrentFramePosition();
+        });
+
         window.onload = function () {
             if (JSON.parse(localStorage.getItem('nightMode') || "false")) {
                 document.body.classList.add('night');
@@ -122,6 +250,9 @@
             }
             let fontSize = localStorage.getItem('fontSize');
             if (fontSize) document.body.style.fontSize = fontSize;
+            if (savePositionCheckbox) {
+                savePositionCheckbox.checked = saveFramePosition;
+            }
 
             loadStory();
         };
