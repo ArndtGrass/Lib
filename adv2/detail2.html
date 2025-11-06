@@ -40,6 +40,11 @@
         <button onclick="resetSettings()">🔁 Reset</button>
         <button onclick="toggleSanitize()">🧼 PRE</button>
         |
+        <label style="margin-right: 10px;">
+            <input type="checkbox" id="rememberFramePosition">
+            Position merken
+        </label>
+        |
         <button id="btnPrev" disabled onclick="navigateChapter(-1)">&lt; Zurück</button>
         <button id="btnNext" disabled onclick="navigateChapter(1)">Weiter &gt;</button>
     </div>
@@ -47,15 +52,78 @@
 
     <script>
         const frame = document.getElementById('storyFrame');
+        const rememberFramePositionCheckbox = document.getElementById('rememberFramePosition');
         let useSanitize = JSON.parse(localStorage.getItem('useSanitize') || "false");
+
+        const REMEMBER_FRAME_POSITION_KEY = 'rememberFramePositionEnabled';
+        const FRAME_POSITION_KEY = 'framePositions';
+        const FRAME_POSITION_LIMIT = 5;
 
         let prevChapterUrl = null;
         let nextChapterUrl = null;
+        let currentFile = null;
+        let cleanupScrollListener = null;
+        let rememberFramePositionEnabledOnLoad = false;
+
+        function loadFramePositions() {
+            try {
+                return JSON.parse(localStorage.getItem(FRAME_POSITION_KEY) || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveFramePositions(list) {
+            localStorage.setItem(FRAME_POSITION_KEY, JSON.stringify(list));
+        }
+
+        function updateFramePosition(file, position) {
+            let positions = loadFramePositions().filter(entry => entry.file !== file);
+            positions.push({ file, position });
+            if (positions.length > FRAME_POSITION_LIMIT) {
+                positions = positions.slice(-FRAME_POSITION_LIMIT);
+            }
+            saveFramePositions(positions);
+        }
+
+        function restoreFramePosition(file, iframeDoc) {
+            const entry = loadFramePositions().find(item => item.file === file);
+            if (!entry) return;
+            const target = iframeDoc.documentElement || iframeDoc.body;
+            if (!target) return;
+            target.scrollTop = entry.position;
+            if (iframeDoc.body) {
+                iframeDoc.body.scrollTop = entry.position;
+            }
+        }
+
+        function setupScrollListener(iframeDoc, file) {
+            const scrollElement = iframeDoc.documentElement;
+            if (!scrollElement) return;
+
+            const handler = () => {
+                if (!rememberFramePositionCheckbox.checked) {
+                    return;
+                }
+                const position = scrollElement.scrollTop || (iframeDoc.body ? iframeDoc.body.scrollTop : 0);
+                if (position > 0) {
+                    updateFramePosition(file, position);
+                }
+            };
+
+            scrollElement.addEventListener('scroll', handler);
+            cleanupScrollListener = () => {
+                scrollElement.removeEventListener('scroll', handler);
+                cleanupScrollListener = null;
+            };
+        }
 
         function loadStory() {
             const urlParams = new URLSearchParams(window.location.search);
             const file = urlParams.get('file');
             if (!file) return;
+
+            currentFile = file;
 
             fetch("../fstories/" + file)
                 .then(res => res.text())
@@ -74,15 +142,16 @@
                     }
 
                     frame.onload = () => {
+                        if (cleanupScrollListener) {
+                            cleanupScrollListener();
+                        }
                         const iframeDoc = frame.contentDocument;
                         const btnPrev = document.getElementById('btnPrev');
                         const btnNext = document.getElementById('btnNext');
 
-                        // Find links
                         const prevLink = Array.from(iframeDoc.querySelectorAll('.chapters a.btn')).find(a => a.textContent.includes('<-'));
                         const nextLink = Array.from(iframeDoc.querySelectorAll('.chapters a.btn')).find(a => a.textContent.includes('->'));
 
-                        // Handle Previous button state
                         if (prevLink) {
                             prevChapterUrl = prevLink.getAttribute('href');
                             btnPrev.disabled = false;
@@ -91,13 +160,20 @@
                             btnPrev.disabled = true;
                         }
 
-                        // Handle Next button state
                         if (nextLink) {
                             nextChapterUrl = nextLink.getAttribute('href');
                             btnNext.disabled = false;
                         } else {
                             nextChapterUrl = null;
                             btnNext.disabled = true;
+                        }
+
+                        const isRememberEnabled = rememberFramePositionEnabledOnLoad && rememberFramePositionCheckbox.checked;
+                        restoreFramePosition(file, iframeDoc);
+                        if (isRememberEnabled) {
+                            setupScrollListener(iframeDoc, file);
+                        } else if (cleanupScrollListener) {
+                            cleanupScrollListener();
                         }
                     };
 
@@ -113,6 +189,7 @@
                         <body>${body.innerHTML}</body>
                         </html>
                     `;
+                    rememberFramePositionEnabledOnLoad = rememberFramePositionCheckbox.checked;
                 });
         }
 
@@ -157,7 +234,8 @@
         }
 
         function resetSettings() {
-            localStorage.clear();
+            const keysToClear = ['nightMode', 'fontSize', 'useSanitize', REMEMBER_FRAME_POSITION_KEY, FRAME_POSITION_KEY];
+            keysToClear.forEach(key => localStorage.removeItem(key));
             location.reload();
         }
 
@@ -166,6 +244,23 @@
             localStorage.setItem('useSanitize', JSON.stringify(useSanitize));
             loadStory();
         }
+
+        rememberFramePositionCheckbox.checked = JSON.parse(localStorage.getItem(REMEMBER_FRAME_POSITION_KEY) || 'false');
+        rememberFramePositionEnabledOnLoad = rememberFramePositionCheckbox.checked;
+        rememberFramePositionCheckbox.addEventListener('change', () => {
+            const enabled = rememberFramePositionCheckbox.checked;
+            localStorage.setItem(REMEMBER_FRAME_POSITION_KEY, JSON.stringify(enabled));
+            rememberFramePositionEnabledOnLoad = enabled;
+            if (!enabled) {
+                if (cleanupScrollListener) {
+                    cleanupScrollListener();
+                }
+                localStorage.removeItem(FRAME_POSITION_KEY);
+            } else if (frame.contentDocument && currentFile) {
+                restoreFramePosition(currentFile, frame.contentDocument);
+                setupScrollListener(frame.contentDocument, currentFile);
+            }
+        });
 
         window.onload = function () {
             if (JSON.parse(localStorage.getItem('nightMode') || "false")) {
